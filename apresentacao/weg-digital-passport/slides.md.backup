@@ -1,0 +1,767 @@
+---
+# try also 'default' to start simple
+theme: default
+# random image from a curated Unsplash collection by Anthony
+# like them? see https://unsplash.com/collections/94734566/slidev
+background: 'https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80'
+# apply any windi css classes to the current slide
+class: 'text-center'
+# https://sli.dev/custom/highlighters.html
+highlighter: shiki
+# show line numbers in code blocks
+lineNumbers: false
+# some information about the slides, markdown enabled
+info: |
+  ## WEG Digital Passport
+  Passaportes Digitais Industriais na Blockchain
+  
+  Apresentação executiva para aprovação do projeto piloto.
+# persist drawings in exports and build
+drawings:
+  persist: false
+# use UnoCSS (experimental)
+css: unocss
+---
+
+# 🏭 WEG Digital Passport
+
+## Passaportes Digitais Industriais na Blockchain
+
+<div class="pt-12">
+  <span @click="$slidev.nav.next" class="px-2 py-1 rounded cursor-pointer" hover="bg-white bg-opacity-10">
+    Transformando a Indústria 4.0 <carbon:arrow-right class="inline"/>
+  </span>
+</div>
+
+<div class="abs-br m-6 flex gap-2">
+  <button @click="$slidev.nav.openInEditor()" title="Open in Editor" class="text-xl icon-btn opacity-50 !border-none !hover:text-white">
+    <carbon:edit />
+  </button>
+  <a href="https://github.com/slidevjs/slidev" target="_blank" alt="GitHub"
+    class="text-xl icon-btn opacity-50 !border-none !hover:text-white">
+    <carbon:logo-github />
+  </a>
+</div>
+
+---
+layout: center
+class: text-center
+---
+
+# 📋 Agenda
+
+<div class="grid grid-cols-2 gap-8 pt-8">
+
+<div class="space-y-4">
+
+## 🎯 **Problema e Oportunidade**
+*5 minutos*
+
+## 💡 **Solução Proposta**
+*8 minutos*
+
+## 🔧 **Como Funciona**
+*10 minutos*
+
+## 📊 **Arquitetura Técnica**
+*5 minutos*
+
+</div>
+
+<div class="space-y-4">
+
+## 💰 **Benefícios e ROI**
+*8 minutos*
+
+## 🚀 **Implementação**
+*5 minutos*
+
+## ❓ **Q&A**
+*15 minutos*
+
+</div>
+
+</div>
+
+---
+layout: two-cols
+---
+
+# 🚨 O Problema Atual da WEG
+
+## ❌ Desafios Críticos
+
+<v-clicks>
+
+### 🔍 **Rastreabilidade Limitada**
+- Produtos com ciclo de vida de **15+ anos**
+- Documentação fragmentada e perdida
+- Equipamentos "fantasmas" no campo
+
+### ⚖️ **Pressão Regulatória**
+- **EU Digital Passport** obrigatório em **2026**
+- Compliance ambiental crescente
+- Auditoria cada vez mais rigorosa
+
+### 🔧 **Manutenção Ineficiente**
+- Peças erradas = **R$ milhões** perdidos
+- Histórico incompleto de intervenções
+- Técnicos sem informações precisas
+
+</v-clicks>
+
+::right::
+
+<div class="pt-8">
+
+<v-clicks>
+
+### 📊 **Números que Doem**
+
+<div class="text-center text-6xl font-bold text-red-500 pt-4">
+40%
+</div>
+<div class="text-center text-lg">
+dos custos de garantia vêm de informações incompletas
+</div>
+
+### 🌱 **Impacto Ambiental**
+- Impossível calcular pegada de carbono real
+- Reciclagem ineficiente
+- Falta de dados para economia circular
+
+</v-clicks>
+
+</div>
+
+---
+layout: center
+class: text-center
+---
+
+# 💡 Nossa Solução
+
+## Um "RG Digital" para Cada Produto WEG
+
+<div class="pt-8">
+  <img src="/motor-qr.svg" class="h-80 mx-auto" alt="Motor WEG com QR Code">
+</div>
+
+<div class="grid grid-cols-4 gap-4 pt-8">
+
+<v-clicks>
+
+<div class="text-center">
+<div class="text-4xl">🔐</div>
+<div class="font-bold">IMUTÁVEL</div>
+</div>
+
+<div class="text-center">
+<div class="text-4xl">🌍</div>
+<div class="font-bold">GLOBAL</div>
+</div>
+
+<div class="text-center">
+<div class="text-4xl">✅</div>
+<div class="font-bold">VERIFICÁVEL</div>
+</div>
+
+<div class="text-center">
+<div class="text-4xl">⏰</div>
+<div class="font-bold">PERMANENTE</div>
+</div>
+
+</v-clicks>
+
+</div>
+
+---
+layout: center
+---
+
+# 🔧 Rastreabilidade Hierárquica
+
+<div class="text-center">
+
+```mermaid {theme: 'dark', scale: 0.8}
+graph TD
+    A["🏭 Motor WEG W22 100HP<br/>WEG-W22-2025-001"] --> B["🧲 Estator<br/>WEG-ST-2025-4521"]
+    A --> C["⚡ Rotor<br/>WEG-RT-2025-9863"]
+    A --> D["🏠 Carcaça<br/>WEG-CS-2025-1122"]
+    
+    B --> E["🟫 Fio de Cobre<br/>Chile - Codelco"]
+    B --> F["🛡️ Isolamento<br/>Alemanha - Elantas"]
+    
+    C --> G["⚫ Aço Especial<br/>Brasil - Gerdau"]
+    C --> H["🧲 Ímãs Permanentes<br/>China - VAC"]
+    
+    D --> I["⚫ Aço<br/>Brasil - Gerdau"]
+    D --> J["🔩 Parafusos<br/>Brasil"]
+    
+    style A fill:#0066CC,stroke:#fff,stroke-width:3px,color:#fff
+    style B fill:#00AA44,stroke:#fff,stroke-width:2px,color:#fff
+    style C fill:#00AA44,stroke:#fff,stroke-width:2px,color:#fff
+    style D fill:#00AA44,stroke:#fff,stroke-width:2px,color:#fff
+```
+
+</div>
+
+<div class="grid grid-cols-3 gap-4 pt-4">
+
+<v-clicks>
+
+<div class="text-center bg-green-100 p-3 rounded">
+<div class="font-bold text-green-800">🎯 Recall direcionado</div>
+<div class="text-green-600">-80% custos</div>
+</div>
+
+<div class="text-center bg-blue-100 p-3 rounded">
+<div class="font-bold text-blue-800">🔍 Análise de falhas</div>
+<div class="text-blue-600">+90% precisão</div>
+</div>
+
+<div class="text-center bg-purple-100 p-3 rounded">
+<div class="font-bold text-purple-800">♻️ Reciclagem</div>
+<div class="text-purple-600">+70% eficiência</div>
+</div>
+
+</v-clicks>
+
+</div>
+
+---
+layout: two-cols
+---
+
+# 🌍 Por Que Blockchain Pública?
+
+## ❌ Rede Privada
+
+<v-clicks>
+
+- 🏢 **Controlada pela WEG**
+- 💸 **Custos 100% WEG**
+- 🔒 **Acesso limitado**
+- ⚠️ **Ponto único de falha**
+- 🏝️ **Ilha isolada**
+
+</v-clicks>
+
+<div class="pt-4">
+<v-click>
+
+### 💰 Custo por Transação
+<div class="bg-red-100 p-4 rounded text-center">
+<div class="text-2xl font-bold text-red-600">$10.00</div>
+<div class="text-red-500">Rede Privada</div>
+</div>
+
+</v-click>
+</div>
+
+::right::
+
+<div class="pt-8">
+
+## ✅ Rede Pública (Arbitrum)
+
+<v-clicks>
+
+- 🌍 **Neutra e global**
+- 💰 **Custos compartilhados**
+- 🔓 **Verificação independente**
+- 🛡️ **Milhares de validadores**
+- 🔗 **Interoperabilidade total**
+
+</v-clicks>
+
+<div class="pt-4">
+<v-click>
+
+### 💰 Custo por Transação
+<div class="bg-green-100 p-4 rounded text-center">
+<div class="text-2xl font-bold text-green-600">$0.10</div>
+<div class="text-green-500">Arbitrum</div>
+</div>
+
+</v-click>
+</div>
+
+<div class="pt-4 flex gap-4 justify-center">
+<v-click>
+<img src="/arbitrum-logo.png" class="h-12" alt="Arbitrum">
+<img src="/ethereum-logo.png" class="h-12" alt="Ethereum">
+</v-click>
+</div>
+
+</div>
+
+---
+layout: center
+---
+
+# 🏗️ Arquitetura da Solução
+
+```mermaid {theme: 'dark', scale: 0.9}
+graph TB
+    subgraph "👥 STAKEHOLDERS"
+        T[🔧 Técnicos]
+        C[🏢 Clientes] 
+        R[🏛️ Reguladores]
+    end
+    
+    subgraph "🏢 WEG SYSTEMS"
+        WM[📱 WEG Manager]
+        ERP[🏢 ERP/MES Systems]
+    end
+    
+    subgraph "🌐 ARBITRUM NETWORK"
+        EAS[🔏 EAS Service]
+        REG[📚 Registry]
+        FAC[🏭 Factory]
+    end
+    
+    T --> WM
+    C --> WM
+    R --> REG
+    
+    WM --> ERP
+    ERP --> FAC
+    FAC --> EAS
+    EAS --> REG
+    
+    style WM fill:#0066CC,stroke:#fff,stroke-width:2px,color:#fff
+    style ERP fill:#0066CC,stroke:#fff,stroke-width:2px,color:#fff
+    style EAS fill:#333,stroke:#fff,stroke-width:2px,color:#fff
+    style REG fill:#333,stroke:#fff,stroke-width:2px,color:#fff
+    style FAC fill:#333,stroke:#fff,stroke-width:2px,color:#fff
+```
+
+---
+layout: center
+---
+
+# 📱 Experiência do Usuário
+
+<div class="grid grid-cols-4 gap-4 pt-8">
+
+<v-clicks>
+
+<div class="text-center bg-blue-50 p-4 rounded">
+<div class="text-4xl mb-2">📱</div>
+<div class="font-bold">Cliente escaneia QR</div>
+<div class="text-sm text-gray-600">2 segundos</div>
+</div>
+
+<div class="text-center bg-green-50 p-4 rounded">
+<div class="text-4xl mb-2">📋</div>
+<div class="font-bold">Visualiza dados</div>
+<div class="text-sm text-gray-600">5 segundos</div>
+</div>
+
+<div class="text-center bg-yellow-50 p-4 rounded">
+<div class="text-4xl mb-2">🔧</div>
+<div class="font-bold">Técnico registra</div>
+<div class="text-sm text-gray-600">30 segundos</div>
+</div>
+
+<div class="text-center bg-purple-50 p-4 rounded">
+<div class="text-4xl mb-2">📊</div>
+<div class="font-bold">Gestor vê analytics</div>
+<div class="text-sm text-gray-600">Tempo real</div>
+</div>
+
+</v-clicks>
+
+</div>
+
+<div class="pt-8 text-center">
+<v-click>
+
+### 🎯 Interface Simples
+**Sem necessidade de conhecer blockchain**  
+**Funciona em qualquer dispositivo**
+
+</v-click>
+</div>
+
+---
+layout: center
+---
+
+# 💰 Retorno do Investimento
+
+<div class="grid grid-cols-2 gap-8 pt-4">
+
+<div class="bg-red-50 p-6 rounded">
+<div class="text-xl font-bold text-red-600 mb-4">🔻 REDUÇÃO DE CUSTOS</div>
+
+<v-clicks>
+
+<div class="space-y-2">
+<div class="flex justify-between">
+<span>Manutenção (-30%)</span>
+<span class="font-bold">R$ 2M</span>
+</div>
+<div class="flex justify-between">
+<span>Compliance (-50%)</span>
+<span class="font-bold">R$ 1M</span>
+</div>
+<div class="flex justify-between">
+<span>Recall (-80%)</span>
+<span class="font-bold">R$ 4M</span>
+</div>
+<div class="flex justify-between">
+<span>Garantia (-40%)</span>
+<span class="font-bold">R$ 1.5M</span>
+</div>
+</div>
+
+</v-clicks>
+
+</div>
+
+<div class="bg-green-50 p-6 rounded">
+<div class="text-xl font-bold text-green-600 mb-4">📈 AUMENTO DE RECEITA</div>
+
+<v-clicks>
+
+<div class="space-y-2">
+<div class="flex justify-between">
+<span>Novos mercados</span>
+<span class="font-bold">+R$ 5M</span>
+</div>
+<div class="flex justify-between">
+<span>Serviços premium</span>
+<span class="font-bold">+R$ 3M</span>
+</div>
+<div class="flex justify-between">
+<span>Certificação</span>
+<span class="font-bold">+R$ 2M</span>
+</div>
+</div>
+
+</v-clicks>
+
+</div>
+
+</div>
+
+<div class="text-center pt-8">
+<v-click>
+
+<div class="bg-blue-600 text-white p-6 rounded-lg inline-block">
+<div class="text-6xl font-bold">250%</div>
+<div class="text-xl">ROI em 18 meses</div>
+<div class="text-sm opacity-80">Investimento: R$ 1M → Retorno: R$ 2.5M</div>
+</div>
+
+</v-click>
+</div>
+
+---
+layout: center
+---
+
+# 🚀 Plano de Implementação
+
+<div class="space-y-8">
+
+<v-clicks>
+
+<div class="grid grid-cols-3 gap-8">
+
+<div class="text-center bg-blue-50 p-6 rounded">
+<div class="text-2xl font-bold text-blue-600">📅 FASE 1</div>
+<div class="text-lg font-semibold">3 meses - PILOTO</div>
+<div class="mt-4 space-y-2">
+<div>🏭 1 linha de produção</div>
+<div>📦 100 produtos</div>
+<div>💰 R$ 300K</div>
+</div>
+</div>
+
+<div class="text-center bg-green-50 p-6 rounded">
+<div class="text-2xl font-bold text-green-600">📅 FASE 2</div>
+<div class="text-lg font-semibold">6 meses - EXPANSÃO</div>
+<div class="mt-4 space-y-2">
+<div>🏭🏭🏭 3 linhas principais</div>
+<div>📦 1.000/mês</div>
+<div>💰 R$ 500K</div>
+</div>
+</div>
+
+<div class="text-center bg-purple-50 p-6 rounded">
+<div class="text-2xl font-bold text-purple-600">📅 FASE 3</div>
+<div class="text-lg font-semibold">12 meses - ESCALA</div>
+<div class="mt-4 space-y-2">
+<div>🌐 Todos os produtos</div>
+<div>📦 10.000+/mês</div>
+<div>💰 R$ 200K</div>
+</div>
+</div>
+
+</div>
+
+</v-clicks>
+
+<div class="text-center pt-4">
+<v-click>
+
+### ✅ Marcos Principais
+**Equipe formada • Sistemas integrados • Fornecedores onboard • Padrão da indústria**
+
+</v-click>
+</div>
+
+</div>
+
+---
+layout: center
+class: text-center bg-red-600 text-white
+---
+
+# ⚠️ Por Que Agir AGORA?
+
+<div class="pt-8">
+
+<v-clicks>
+
+<div class="text-6xl font-bold">
+<div class="text-4xl">EU Digital Passport obrigatório em:</div>
+<div class="grid grid-cols-3 gap-4 pt-4">
+<div class="bg-white text-red-600 p-4 rounded">2️⃣<br/>ANOS</div>
+<div class="bg-white text-red-600 p-4 rounded">3️⃣<br/>MESES</div>
+<div class="bg-white text-red-600 p-4 rounded">15<br/>DIAS</div>
+</div>
+</div>
+
+<div class="grid grid-cols-2 gap-8 pt-8">
+
+<div>
+<div class="text-xl font-bold">🏃‍♂️ CONCORRENTES JÁ CORRENDO:</div>
+<div class="space-y-2 pt-2">
+<div>SIEMENS - Investindo</div>
+<div>ABB - Piloto 2024</div>
+<div>SCHNEIDER - Pesquisando</div>
+</div>
+</div>
+
+<div>
+<div class="text-xl font-bold">🏆 OPORTUNIDADE ÚNICA:</div>
+<div class="space-y-2 pt-2">
+<div>🥇 Primeiro mover</div>
+<div>📏 Definir padrão</div>
+<div>🌐 Liderar transformação</div>
+</div>
+</div>
+
+</div>
+
+</v-clicks>
+
+</div>
+
+---
+layout: center
+class: text-center bg-black text-white
+---
+
+# 🎬 Demonstração ao Vivo
+
+<div class="pt-12">
+
+<v-click>
+
+<div class="text-8xl">📱</div>
+<div class="text-2xl pt-4">Escaneie com seu celular agora</div>
+
+<div class="pt-8">
+<img src="/qr-demo.svg" class="h-64 mx-auto bg-white p-4 rounded" alt="QR Code Demo">
+</div>
+
+</v-click>
+
+</div>
+
+<div class="pt-8">
+<v-click>
+
+<button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-lg text-xl">
+👆 CLIQUE PARA DEMO
+</button>
+
+</v-click>
+</div>
+
+---
+layout: center
+---
+
+# 🤝 Próximos Passos
+
+<div class="grid grid-cols-2 gap-8 pt-8">
+
+<v-clicks>
+
+<div class="bg-blue-50 p-6 rounded">
+<div class="text-xl font-bold text-blue-600 mb-4">📝 HOJE:</div>
+<div class="space-y-2">
+<div>□ Aprovação diretoria</div>
+<div>□ Budget aprovado</div>
+<div>□ Sponsor definido</div>
+</div>
+</div>
+
+<div class="bg-green-50 p-6 rounded">
+<div class="text-xl font-bold text-green-600 mb-4">👥 ESTA SEMANA:</div>
+<div class="space-y-2">
+<div>□ Formar equipe</div>
+<div>□ Definir piloto</div>
+<div>□ Cronograma detalhado</div>
+</div>
+</div>
+
+<div class="bg-yellow-50 p-6 rounded">
+<div class="text-xl font-bold text-yellow-600 mb-4">🚀 PRÓXIMO MÊS:</div>
+<div class="space-y-2">
+<div>□ Desenvolvimento MVP</div>
+<div>□ Integração sistemas</div>
+<div>□ Treinamento equipe</div>
+</div>
+</div>
+
+<div class="bg-purple-50 p-6 rounded">
+<div class="text-xl font-bold text-purple-600 mb-4">📈 EM 90 DIAS:</div>
+<div class="space-y-2">
+<div>□ Primeiros resultados</div>
+<div>□ Avaliação sucesso</div>
+<div>□ Decisão escala</div>
+</div>
+</div>
+
+</v-clicks>
+
+</div>
+
+<div class="text-center pt-8">
+<v-click>
+
+<button class="bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-8 rounded-lg text-2xl">
+🚀 VAMOS COMEÇAR AGORA?
+</button>
+
+</v-click>
+</div>
+
+---
+layout: center
+class: text-center
+background: 'https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80'
+---
+
+<div class="bg-blue-900 bg-opacity-90 p-12 rounded-lg text-white">
+
+# 🚀 WEG pode ser a PRIMEIRA
+
+## INDÚSTRIA BRASILEIRA
+## a Implementar Passaportes Digitais
+
+<div class="grid grid-cols-3 gap-8 pt-8">
+
+<v-clicks>
+
+<div class="text-center">
+<div class="text-4xl">💡</div>
+<div class="font-bold">LIDERAR</div>
+<div>transformação</div>
+</div>
+
+<div class="text-center">
+<div class="text-4xl">📏</div>
+<div class="font-bold">DEFINIR</div>
+<div>padrão</div>
+</div>
+
+<div class="text-center">
+<div class="text-4xl">🏆</div>
+<div class="font-bold">CAPTURAR</div>
+<div>vantagem</div>
+</div>
+
+</v-clicks>
+
+</div>
+
+<div class="pt-8">
+<v-click>
+
+<div class="text-6xl font-bold">🤔</div>
+<div class="text-3xl font-bold pt-4">VAMOS TRANSFORMAR A INDÚSTRIA?</div>
+
+</v-click>
+</div>
+
+</div>
+
+---
+layout: center
+---
+
+# 📞 Vamos Conversar
+
+<div class="grid grid-cols-2 gap-8 pt-8">
+
+<div class="text-center">
+<div class="text-6xl">👤</div>
+<div class="text-xl font-bold pt-4">[Seu Nome]</div>
+<div class="text-lg">[Seu Cargo]</div>
+<div class="pt-4 space-y-2">
+<div>📧 [seu-email]@weg.net</div>
+<div>📱 [seu-whatsapp]</div>
+<div>💼 [linkedin]</div>
+</div>
+</div>
+
+<div>
+<div class="text-xl font-bold mb-4">📁 MATERIAIS DISPONÍVEIS:</div>
+<div class="space-y-2">
+<div>📄 White Paper Técnico</div>
+<div>💰 Análise ROI Detalhada</div>
+<div>🏗️ Documentação Arquitetura</div>
+<div>📊 Cases de Uso</div>
+</div>
+
+<div class="pt-6">
+<div class="text-xl font-bold mb-4">🤝 PRÓXIMA REUNIÃO:</div>
+<div class="space-y-2">
+<div>📅 Data: [A definir]</div>
+<div>🎯 Objetivo: Aprovação Piloto</div>
+<div>👥 Participantes: C-Level + Equipe</div>
+</div>
+</div>
+
+</div>
+
+</div>
+
+<div class="text-center pt-8">
+<img src="/qr-contact.svg" class="h-32 mx-auto" alt="QR Code Contatos">
+</div>
+
+---
+layout: end
+class: text-center
+---
+
+<div class="text-6xl font-bold text-blue-600">
+🏭 WEG Digital Passport
+</div>
+
+<div class="text-2xl pt-4">
+Transformando a Indústria 4.0
+</div>
+
+<div class="pt-8 opacity-60">
+Obrigado pela atenção!
+</div>
