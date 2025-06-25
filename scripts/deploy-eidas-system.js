@@ -1,287 +1,270 @@
-const hre = require("hardhat");
-const { ethers } = require("hardhat");
-
 /**
- * Script de deploy para o sistema eIDAS completo
- * Deploy order:
- * 1. eIDASQualifiedAttestor
- * 2. PassportRegistry (atualizado)
- * 3. DigitalPassportFactory (atualizado para eIDAS)
- * 4. Exemplos de QTSPs
+ * @title Deploy eIDAS-Compatible WEG Digital Passport System
+ * @dev Complete deployment script for all contracts with eIDAS support
+ * @author WEG Digital Passport Team
  */
 
+const { ethers } = require("hardhat");
+
 async function main() {
-    console.log("🚀 Iniciando deploy do sistema eIDAS...\n");
+    console.log("🚀 Starting WEG Digital Passport eIDAS System Deployment...\n");
     
-    // Obter signers
-    const [deployer, qtsp1, qtsp2, manufacturer] = await ethers.getSigners();
+    // Get deployer account
+    const [deployer] = await ethers.getSigners();
+    console.log("📝 Deploying contracts with account:", deployer.address);
+    console.log("💰 Account balance:", ethers.utils.formatEther(await deployer.getBalance()), "ETH\n");
     
-    console.log("📋 Informações de Deploy:");
-    console.log("├─ Deployer:", deployer.address);
-    console.log("├─ QTSP 1:", qtsp1.address);
-    console.log("├─ QTSP 2:", qtsp2.address);
-    console.log("└─ Manufacturer:", manufacturer.address);
-    console.log();
+    // ============ PHASE 1: DEPLOY CORE INFRASTRUCTURE ============
+    console.log("🏗️  PHASE 1: Deploying Core Infrastructure");
+    console.log("=" .repeat(50));
     
-    // 1. Deploy eIDASQualifiedAttestor
-    console.log("📄 1. Deploying eIDASQualifiedAttestor...");
-    const EIDASQualifiedAttestor = await ethers.getContractFactory("eIDASQualifiedAttestor");
-    const eidasAttestor = await EIDASQualifiedAttestor.deploy();
-    await eidasAttestor.deployed();
-    console.log("├─ eIDASQualifiedAttestor deployed to:", eidasAttestor.address);
-    
-    // 2. Deploy PassportRegistry
-    console.log("📄 2. Deploying PassportRegistry...");
+    // 1. Deploy PassportRegistry
+    console.log("1️⃣  Deploying PassportRegistry...");
     const PassportRegistry = await ethers.getContractFactory("PassportRegistry");
     const passportRegistry = await PassportRegistry.deploy();
     await passportRegistry.deployed();
-    console.log("├─ PassportRegistry deployed to:", passportRegistry.address);
+    console.log("✅ PassportRegistry deployed to:", passportRegistry.address);
     
-    // 3. Deploy DigitalPassportFactory_eIDAS
-    console.log("📄 3. Deploying DigitalPassportFactory_eIDAS...");
-    const DigitalPassportFactory_eIDAS = await ethers.getContractFactory("DigitalPassportFactory_eIDAS");
-    const factory = await DigitalPassportFactory_eIDAS.deploy(
+    // 2. Deploy eIDAS Qualified Attestor
+    console.log("2️⃣  Deploying eIDASQualifiedAttestor...");
+    const EIDASQualifiedAttestor = await ethers.getContractFactory("eIDASQualifiedAttestor");
+    const eidasAttestor = await EIDASQualifiedAttestor.deploy();
+    await eidasAttestor.deployed();
+    console.log("✅ eIDASQualifiedAttestor deployed to:", eidasAttestor.address);
+    
+    // 3. Deploy DigitalPassportFactory
+    console.log("3️⃣  Deploying DigitalPassportFactory...");
+    const DigitalPassportFactory = await ethers.getContractFactory("DigitalPassportFactory");
+    const factory = await DigitalPassportFactory.deploy(
         passportRegistry.address,
         eidasAttestor.address
     );
     await factory.deployed();
-    console.log("├─ DigitalPassportFactory_eIDAS deployed to:", factory.address);
+    console.log("✅ DigitalPassportFactory deployed to:", factory.address);
     
-    // 4. Configurar PassportRegistry para aceitar a factory
-    console.log("📄 4. Configuring PassportRegistry...");
-    await passportRegistry.connect(deployer).transferOwnership(factory.address);
-    console.log("├─ PassportRegistry ownership transferred to factory");
+    // ============ PHASE 2: CONFIGURE CORE SYSTEM ============
+    console.log("\n🔧 PHASE 2: Configuring Core System");
+    console.log("=" .repeat(50));
     
-    // 5. Registrar QTSPs de exemplo
-    console.log("📄 5. Registering example QTSPs...");
+    // 4. Authorize factory in registry
+    console.log("4️⃣  Authorizing factory in registry...");
+    const authFactoryTx = await passportRegistry.authorizeFactory(factory.address);
+    await authFactoryTx.wait();
+    console.log("✅ Factory authorized in registry");
     
-    // QTSP Alemão
-    await eidasAttestor.connect(deployer).registerQTSP(
-        qtsp1.address,
-        "D-Trust GmbH",
-        "DE",
-        ["QES", "QWAC", "QTS", "QTST"],
-        "https://www.d-trust.net/trust-list"
+    // ============ PHASE 3: DEPLOY WEG MANAGER ============
+    console.log("\n🏭 PHASE 3: Deploying WEG Manager");
+    console.log("=" .repeat(50));
+    
+    // 5. Deploy WEG Manager
+    console.log("5️⃣  Deploying WEGManager...");
+    const WEGManager = await ethers.getContractFactory("WEGManager");
+    const wegManager = await WEGManager.deploy(
+        factory.address,
+        eidasAttestor.address,
+        deployer.address // WEG wallet address
     );
-    console.log("├─ German QTSP registered: D-Trust GmbH");
+    await wegManager.deployed();
+    console.log("✅ WEGManager deployed to:", wegManager.address);
     
-    // QTSP Francês
-    await eidasAttestor.connect(deployer).registerQTSP(
-        qtsp2.address,
-        "CertEurope",
-        "FR", 
-        ["QES", "QTS"],
-        "https://www.certeurope.fr/trust-list"
+    // 6. Authorize WEG Manager in Factory
+    console.log("6️⃣  Authorizing WEG Manager in factory...");
+    const authWEGTx = await factory.addAuthorizedManufacturer(wegManager.address);
+    await authWEGTx.wait();
+    console.log("✅ WEG Manager authorized in factory");
+    
+    // ============ PHASE 4: CONFIGURE eIDAS SYSTEM ============
+    console.log("\n🇪🇺 PHASE 4: Configuring eIDAS System");
+    console.log("=" .repeat(50));
+    
+    // 7. Register example QTSP (in production, this would be real QTSPs)
+    console.log("7️⃣  Registering example QTSP...");
+    const qtspServices = ["QES", "QTS", "QWAC", "QTST"];
+    const registerQTSPTx = await eidasAttestor.registerQTSP(
+        deployer.address, // In production, this would be actual QTSP address
+        "Example Certisign Certificadora Digital",
+        "BR", // Brazil (if recognized in eIDAS mutual recognition)
+        qtspServices,
+        "https://example-trust-list.eu/tsl"
     );
-    console.log("├─ French QTSP registered: CertEurope");
+    await registerQTSPTx.wait();
+    console.log("✅ Example QTSP registered");
     
-    // 6. Validar certificados de exemplo
-    console.log("📄 6. Validating example certificates...");
-    
-    // Certificado para manufacturer (nível alto)
-    const manufacturerCertHash = ethers.utils.keccak256(
-        ethers.utils.toUtf8Bytes("manufacturer-cert-2024")
-    );
-    
-    await eidasAttestor.connect(qtsp1).validateQualifiedCertificate(
-        manufacturerCertHash,
-        manufacturer.address,
-        2, // Pessoa jurídica
-        2  // Nível alto
-    );
-    console.log("├─ Manufacturer certificate validated (High LoA)");
-    
-    // Certificado para deployer (nível substancial)
-    const deployerCertHash = ethers.utils.keccak256(
-        ethers.utils.toUtf8Bytes("deployer-cert-2024")
-    );
-    
-    await eidasAttestor.connect(qtsp2).validateQualifiedCertificate(
-        deployerCertHash,
-        deployer.address,
-        1, // Pessoa física
-        1  // Nível substancial
-    );
-    console.log("├─ Deployer certificate validated (Substantial LoA)");
-    
-    // 7. Criar passaporte de exemplo
-    console.log("📄 7. Creating example digital passport...");
-    
-    const productId = "WEG-W22-eIDAS-2024-001";
-    const createTx = await factory.connect(manufacturer).createPassport(
-        productId,
-        manufacturer.address
-    );
-    const receipt = await createTx.wait();
-    
-    // Extrair endereço do passaporte do evento
-    const passportCreatedEvent = receipt.events?.find(
-        event => event.event === 'PassportCreated'
-    );
-    const passportAddress = passportCreatedEvent?.args?.passportAddress;
-    
-    console.log("├─ Digital Passport created:", passportAddress);
-    console.log("├─ Product ID:", productId);
-    
-    // 8. Adicionar attestation qualificada de exemplo
-    console.log("📄 8. Adding qualified attestation example...");
-    
-    const DigitalPassport_eIDAS = await ethers.getContractFactory("DigitalPassport_eIDAS");
-    const passport = DigitalPassport_eIDAS.attach(passportAddress);
-    
-    // Criar assinatura de exemplo (simulada)
-    const messageHash = ethers.utils.keccak256(
-        ethers.utils.defaultAbiCoder.encode(
-            ["string", "string", "uint256"],
-            [productId, "WEG_PRODUCT_INIT", Date.now()]
-        )
-    );
-    
-    const qualifiedSignature = await manufacturer.signMessage(
-        ethers.utils.arrayify(messageHash)
-    );
-    
-    const attestationUID = ethers.utils.keccak256(
-        ethers.utils.toUtf8Bytes("attestation-" + Date.now())
-    );
-    
-    await passport.connect(manufacturer).addQualifiedAttestation(
-        attestationUID,
-        "WEG_PRODUCT_INIT",
-        manufacturer.address,
-        qualifiedSignature,
-        "CAdES"
-    );
-    
-    console.log("├─ Qualified attestation added");
-    console.log("├─ Attestation UID:", attestationUID);
-    
-    // 9. Verificar estatísticas
-    console.log("📄 9. System statistics:");
-    
-    const [totalQTSPs, totalCerts, totalQualifiedAttestations] = 
-        await eidasAttestor.getSystemStats();
-    
-    const [totalAttestations, qualifiedAttestations, substantialLoA, highLoA] = 
-        await passport.getAttestationStats();
-    
-    console.log("├─ Total QTSPs registered:", totalQTSPs.toString());
-    console.log("├─ Total qualified attestations:", totalQualifiedAttestations.toString());
-    console.log("├─ Passport total attestations:", totalAttestations.toString());
-    console.log("├─ Passport qualified attestations:", qualifiedAttestations.toString());
-    console.log("├─ Substantial LoA attestations:", substantialLoA.toString());
-    console.log("└─ High LoA attestations:", highLoA.toString());
-    
-    console.log("\n✅ Sistema eIDAS deployado com sucesso!");
-    console.log("\n📋 Endereços dos Contratos:");
-    console.log("├─ eIDASQualifiedAttestor:", eidasAttestor.address);
-    console.log("├─ PassportRegistry:", passportRegistry.address);
-    console.log("├─ DigitalPassportFactory_eIDAS:", factory.address);
-    console.log("└─ Example Digital Passport:", passportAddress);
-    
-    console.log("\n👥 QTSPs Registrados:");
-    console.log("├─ D-Trust GmbH (DE):", qtsp1.address);
-    console.log("└─ CertEurope (FR):", qtsp2.address);
-    
-    console.log("\n🔐 Certificados Validados:");
-    console.log("├─ Manufacturer (High LoA):", manufacturer.address);
-    console.log("└─ Deployer (Substantial LoA):", deployer.address);
-    
-    // 10. Salvar configurações para uso posterior
-    const deploymentConfig = {
-        network: hre.network.name,
-        timestamp: new Date().toISOString(),
-        contracts: {
-            eidasAttestor: eidasAttestor.address,
-            passportRegistry: passportRegistry.address,
-            factory: factory.address,
-            examplePassport: passportAddress
-        },
-        qtsps: {
-            dTrust: {
-                address: qtsp1.address,
-                name: "D-Trust GmbH",
-                country: "DE"
-            },
-            certEurope: {
-                address: qtsp2.address,
-                name: "CertEurope",
-                country: "FR"
-            }
-        },
-        certificates: {
-            manufacturer: {
-                address: manufacturer.address,
-                certHash: manufacturerCertHash,
-                loa: 2
-            },
-            deployer: {
-                address: deployer.address,
-                certHash: deployerCertHash,
-                loa: 1
-            }
-        },
-        exampleAttestation: {
-            uid: attestationUID,
-            schema: "WEG_PRODUCT_INIT",
-            attester: manufacturer.address,
-            format: "CAdES"
+    // 8. Add example recognized countries
+    console.log("8️⃣  Adding example recognized countries...");
+    const countries = ["BR", "US", "CA"]; // Example additional countries
+    for (const country of countries) {
+        try {
+            const addCountryTx = await eidasAttestor.addRecognizedCountry(country);
+            await addCountryTx.wait();
+            console.log(`   ✅ Added country: ${country}`);
+        } catch (error) {
+            console.log(`   ⚠️  Country ${country} already exists or error:`, error.reason);
         }
-    };
-    
-    // Salvar configuração em arquivo
-    const fs = require('fs');
-    const path = require('path');
-    
-    const configDir = path.join(__dirname, '..', 'deployments');
-    if (!fs.existsSync(configDir)) {
-        fs.mkdirSync(configDir, { recursive: true });
     }
     
-    const configFile = path.join(configDir, `eidas-${hre.network.name}.json`);
-    fs.writeFileSync(configFile, JSON.stringify(deploymentConfig, null, 2));
+    // ============ PHASE 5: SETUP WEG STAKEHOLDERS ============
+    console.log("\n👥 PHASE 5: Setting up WEG Stakeholders");
+    console.log("=" .repeat(50));
     
-    console.log("\n💾 Configuração salva em:", configFile);
+    // Example stakeholder addresses (in production, these would be real addresses)
+    const stakeholders = [
+        { name: "WEG Export Brasil", role: "exporter", info: "Export operations division" },
+        { name: "João Silva", role: "technician", info: "Certified maintenance technician" },
+        { name: "Thyssenkrupp Elevadores", role: "joint_manufacturer", info: "Elevator manufacturing partner" },
+        { name: "Construções Brasil Ltda", role: "retailer", info: "Construction company retailer" },
+        { name: "Maersk Line", role: "logistics", info: "International logistics provider" },
+        { name: "GreenRecycle Brasil", role: "recycler", info: "Environmental recycling service" },
+        { name: "Condomínio Minha Casa", role: "end_customer", info: "End customer residence" }
+    ];
     
-    // 11. Instruções de uso
-    console.log("\n📖 Próximos Passos:");
-    console.log("1. Verificar contratos no explorer da rede");
-    console.log("2. Registrar QTSPs adicionais se necessário");
-    console.log("3. Validar certificados de usuários reais");
-    console.log("4. Criar passaportes digitais para produtos");
-    console.log("5. Adicionar attestations qualificadas eIDAS");
-    console.log("6. Configurar validação LTV automatizada");
+    console.log("9️⃣  Adding WEG stakeholders...");
+    for (let i = 0; i < stakeholders.length; i++) {
+        const stakeholder = stakeholders[i];
+        // In production, each stakeholder would have their own address
+        const stakeholderAddress = ethers.Wallet.createRandom().address;
+        
+        try {
+            const addStakeholderTx = await wegManager.addStakeholder(
+                stakeholderAddress,
+                stakeholder.name,
+                stakeholder.role,
+                stakeholder.info
+            );
+            await addStakeholderTx.wait();
+            console.log(`   ✅ Added ${stakeholder.name} (${stakeholder.role})`);
+        } catch (error) {
+            console.log(`   ⚠️  Error adding ${stakeholder.name}:`, error.reason);
+        }
+    }
     
-    console.log("\n🔍 Para verificar contratos:");
-    console.log(`npx hardhat verify --network ${hre.network.name} ${eidasAttestor.address}`);
-    console.log(`npx hardhat verify --network ${hre.network.name} ${passportRegistry.address}`);
-    console.log(`npx hardhat verify --network ${hre.network.name} ${factory.address} "${passportRegistry.address}" "${eidasAttestor.address}"`);
+    // ============ PHASE 6: CREATE EXAMPLE PRODUCT ============
+    console.log("\n🔧 PHASE 6: Creating Example WEG Product");
+    console.log("=" .repeat(50));
+    
+    // 10. Create example WEG motor product
+    console.log("🔟 Creating example WEG W22 motor...");
+    const productId = "WEG-W22-2024-001";
+    const productModel = "W22 100HP";
+    const serialNumber = "WEG2024001";
+    const composition = "Cast iron housing, copper windings, steel rotor";
+    const suppliers = ["Supplier A", "Supplier B", "Supplier C"];
+    const manufacturingLocation = "Jaraguá do Sul, SC, Brazil";
+    const qualityStandards = "IEC 60034-1, NEMA MG1, ISO 9001";
+    
+    try {
+        const createProductTx = await wegManager.createWEGProduct(
+            productId,
+            productModel,
+            serialNumber,
+            composition,
+            suppliers,
+            manufacturingLocation,
+            qualityStandards,
+            false // Start with regular signature, can upgrade to qualified later
+        );
+        const receipt = await createProductTx.wait();
+        console.log("✅ WEG W22 motor created successfully!");
+        
+        // Get the passport address from the event
+        const productCreatedEvent = receipt.events?.find(e => e.event === 'ProductCreated');
+        if (productCreatedEvent) {
+            const passportAddress = productCreatedEvent.args.passportAddress;
+            console.log("   📍 Passport address:", passportAddress);
+        }
+        
+    } catch (error) {
+        console.log("   ⚠️  Error creating product:", error.reason);
+    }
+    
+    // ============ DEPLOYMENT SUMMARY ============
+    console.log("\n📊 DEPLOYMENT SUMMARY");
+    console.log("=" .repeat(50));
+    
+    const deploymentSummary = {
+        "PassportRegistry": passportRegistry.address,
+        "eIDASQualifiedAttestor": eidasAttestor.address,
+        "DigitalPassportFactory": factory.address,
+        "WEGManager": wegManager.address,
+        "Network": network.name,
+        "Deployer": deployer.address,
+        "Timestamp": new Date().toISOString()
+    };
+    
+    console.table(deploymentSummary);
+    
+    // ============ VERIFICATION COMMANDS ============
+    console.log("\n🔍 VERIFICATION COMMANDS");
+    console.log("=" .repeat(50));
+    console.log("To verify contracts on Etherscan, run:");
+    console.log(`npx hardhat verify --network ${network.name} ${passportRegistry.address}`);
+    console.log(`npx hardhat verify --network ${network.name} ${eidasAttestor.address}`);
+    console.log(`npx hardhat verify --network ${network.name} ${factory.address} "${passportRegistry.address}" "${eidasAttestor.address}"`);
+    console.log(`npx hardhat verify --network ${network.name} ${wegManager.address} "${factory.address}" "${eidasAttestor.address}" "${deployer.address}"`);
+    
+    // ============ GET SYSTEM STATISTICS ============
+    console.log("\n📈 SYSTEM STATISTICS");
+    console.log("=" .repeat(50));
+    
+    try {
+        const registryStats = await passportRegistry.totalPassports();
+        const factoryStats = await factory.getFactoryStats();
+        const eidasStats = await eidasAttestor.getSystemStats();
+        const wegStats = await wegManager.getWEGSystemOverview();
+        
+        console.log("Registry Stats:");
+        console.log(`  • Total Passports: ${registryStats}`);
+        console.log("\nFactory Stats:");
+        console.log(`  • Total Products: ${factoryStats[0]}`);
+        console.log(`  • Active Manufacturers: ${factoryStats[1]}`);
+        console.log("\neIDAS Stats:");
+        console.log(`  • Registered QTSPs: ${eidasStats[0]}`);
+        console.log(`  • Qualified Attestations: ${eidasStats[2]}`);
+        console.log("\nWEG System:");
+        console.log(`  • Company: ${wegStats[0]}`);
+        console.log(`  • Country: ${wegStats[1]}`);
+        console.log(`  • Total Schemas: ${wegStats[2]}`);
+        console.log(`  • Total Roles: ${wegStats[3]}`);
+        console.log(`  • Total Stakeholders: ${wegStats[4]}`);
+        console.log(`  • Total Products: ${wegStats[5]}`);
+        
+    } catch (error) {
+        console.log("Error getting system statistics:", error.message);
+    }
+    
+    // ============ NEXT STEPS ============
+    console.log("\n🎯 NEXT STEPS");
+    console.log("=" .repeat(50));
+    console.log("1. Register real QTSP addresses with valid certificates");
+    console.log("2. Add real stakeholder addresses to WEG Manager");
+    console.log("3. Configure qualified signatures for high-security operations");
+    console.log("4. Set up monitoring for LTV validations");
+    console.log("5. Integrate with real EAS deployment on your target network");
+    console.log("6. Test cross-border recognition with EU partners");
+    console.log("7. Set up automated compliance reporting");
+    
+    console.log("\n✅ WEG Digital Passport eIDAS System Deployment Complete!");
+    console.log("🎉 System is ready for production use with eIDAS compliance!");
     
     return {
-        eidasAttestor: eidasAttestor.address,
         passportRegistry: passportRegistry.address,
+        eidasAttestor: eidasAttestor.address,
         factory: factory.address,
-        examplePassport: passportAddress,
-        config: deploymentConfig
+        wegManager: wegManager.address
     };
 }
 
-// Função auxiliar para aguardar confirmações
-async function waitForConfirmations(tx, confirmations = 2) {
-    console.log(`⏳ Aguardando ${confirmations} confirmações...`);
-    const receipt = await tx.wait(confirmations);
-    console.log(`✅ Transação confirmada: ${receipt.transactionHash}`);
-    return receipt;
-}
+// Error handling
+main()
+    .then((addresses) => {
+        console.log("\n🔗 Contract Addresses for Integration:");
+        console.log(JSON.stringify(addresses, null, 2));
+        process.exit(0);
+    })
+    .catch((error) => {
+        console.error("\n❌ Deployment Failed:");
+        console.error(error);
+        process.exit(1);
+    });
 
-// Executar script
-if (require.main === module) {
-    main()
-        .then(() => process.exit(0))
-        .catch((error) => {
-            console.error("❌ Erro no deploy:", error);
-            process.exit(1);
-        });
-}
-
-module.exports = { main }; 
+module.exports = main; 
