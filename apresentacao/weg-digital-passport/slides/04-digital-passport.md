@@ -39,29 +39,33 @@
 ### 🏛️ **Base Infrastructure (Shared)**
 - **PassportRegistry**: Indexing of all products
 - **DigitalPassportFactory**: Controlled passport creation
+- **eIDASQualifiedAttestor**: Qualified signatures system
 - **Multi-manufacturer architecture**: WEG + other manufacturers
 
-### ⚙️ **WEG Manager (Specific)**
+### ⚙️ **WEG Manager (eIDAS-Enhanced)**
 - **ManufacturerManager**: Reusable abstract contract
-- **WEGManager**: WEG-specific implementation
-- **Role system**: Stakeholders with granular permissions
+- **WEGManager**: WEG-specific implementation with eIDAS
+- **Role system**: LoA-based permissions + qualified signatures
+- **QTSP Integration**: European trust service providers
 
 </div>
 
 <div>
 
-## Digital Passport Contract
+## Digital Passport Contract (eIDAS-Compatible)
 
 **One contract per product** that stores:
 
 - **📋 Basic Information**: Product ID, manufacturer, creation date
-- **📝 Attestation List**: References to all EAS events
-- **🔍 Query Functions**: History by schema, by period
-- **📊 Event Log**: Chronological record of all operations
+- **📝 Attestation List**: References to all EAS events + qualified attestations
+- **🔐 eIDAS Information**: LoA levels, QTSP data, qualified signatures
+- **🔍 Query Functions**: History by schema, by LoA level, by period
+- **📊 Event Log**: Chronological record with legal validation status
+- **⚖️ LTV Validation**: Long-term validation scheduling and results
 
-### **Each product = One unique passport**
+### **Each product = One unique passport with EU legal recognition**
 
-**Note**: Access control is handled by **WEGManager** and **Resolver**
+**Note**: Access control includes **LoA requirements** and **qualified signature validation**
 
 </div>
 
@@ -113,20 +117,24 @@ abstract contract ManufacturerManager {
   string public manufacturerName;
   string public manufacturerCountry;
   
-  // Permission system
-  mapping(string => RoleInfo) public roles;
-  mapping(address => StakeholderInfo) stakeholders;
-  mapping(string => bytes32) registeredSchemas;
+  // eIDAS Integration
+  eIDASQualifiedAttestor public immutable eidasAttestor;
+  
+  // Enhanced permission system with LoA
+  mapping(string => RoleInfo) public roles; // includes requiredLoA
+  mapping(address => StakeholderInfo) stakeholders; // includes currentLoA
+  mapping(string => SchemaInfo) registeredSchemas; // includes minimumLoA
   
   // Abstract functions (each manufacturer implements)
   function _initializeSchemas() internal virtual;
   function _createRoles() internal virtual;
   
-  // Standardized functions (all use the same)
-  function createRole(name, description, schemas);
-  function addStakeholder(address, name, role);
-  function hasPermission(stakeholder, schema) bool;
-  function createSchema(name, schemaDefinition) returns (bytes32);
+  // Enhanced functions with eIDAS support
+  function createRole(name, description, schemas, requiredLoA, requiresQualifiedSig);
+  function addStakeholder(address, name, role, additionalInfo);
+  function assignQualifiedCertificate(stakeholder, certHash, qtspName, loa);
+  function hasPermission(stakeholder, schema) bool; // checks LoA
+  function attestToProduct(passport, schema, data, useQualifiedSig, sigFormat);
 }
 ```
 
@@ -139,28 +147,36 @@ abstract contract ManufacturerManager {
 ```solidity
 contract WEGManager is ManufacturerManager {
   
-  constructor(factory, eas, registry, wegWallet) {
+  constructor(factory, eidasAttestor, wegWallet) {
     manufacturer = wegWallet;
     manufacturerName = "WEG S.A.";
-    manufacturerCountry = "Brasil";
+    manufacturerCountry = "BR"; // ISO 3166-1 for eIDAS
     
-    _initializeSchemas(); // 5 initial WEG schemas
-    _createRoles();       // 7 WEG roles
+    _initializeWEGSchemas(); // 5 schemas with LoA requirements
+    _initializeWEGRoles();   // 8 roles with eIDAS support
   }
   
-  // WEG defines its own initial schemas
-  function _initializeSchemas() internal override {
-    WEG_PRODUCT_INIT_SCHEMA = 
-      createSchema("product_init", productInitDefinition);
-    WEG_TRANSPORT_EVENT_SCHEMA = 
-      createSchema("transport_event", transportDefinition);
-    // ... other 3 initial schemas
+  // WEG schemas with eIDAS requirements
+  function _initializeWEGSchemas() internal override {
+    registerSchema("WEG_PRODUCT_INIT", schemaId, definition, 
+                   2, true); // High LoA + Qualified signature required
+    registerSchema("WEG_TRANSPORT_EVENT", schemaId, definition,
+                   1, true); // Substantial LoA + Qualified signature
+    registerSchema("WEG_OWNERSHIP_TRANSFER", schemaId, definition,
+                   2, true); // High LoA for legal transfers
+    registerSchema("WEG_MAINTENANCE_EVENT", schemaId, definition,
+                   1, false); // Substantial LoA, regular signature OK
+    registerSchema("WEG_END_OF_LIFE", schemaId, definition,
+                   2, true); // High LoA for environmental compliance
   }
   
-  // WEG can add new schemas anytime
-  function addNewSchema(string name, string definition) 
-    public onlyManufacturer returns (bytes32) {
-    return createSchema(name, definition);
+  // Enhanced product creation with eIDAS
+  function createWEGProduct(productId, model, serialNumber, 
+                           composition, suppliers, location, 
+                           standards, useQualifiedSignature) {
+    address passport = factory.createProduct(productId, address(this));
+    attestToProduct(passport, "WEG_PRODUCT_INIT", data, 
+                   useQualifiedSignature, "CAdES");
   }
 }
 ```
@@ -212,44 +228,47 @@ contract WEGManager is ManufacturerManager {
 
 <div class="roles-weg-slide">
 
-# WEG Role System
+# WEG Role System + eIDAS
 
 <div class="grid grid-cols-2">
 
 <div>
 
-## Defined Roles
+## Enhanced Roles with LoA
 
-| Role | Stakeholder | Allowed Schemas |
-|------|------------------|-------------------|
-| **🏭 manufacturer** | WEG S.A. | All (5 schemas) |
-| **🔧 maintenance_technician** | Authorized technicians | MAINTENANCE_EVENT only |
-| **🚛 logistics_provider** | Transport companies | TRANSPORT_EVENT only |
-| **👥 distributor** | Product distributors | OWNERSHIP_TRANSFER only |
-| **🏪 end_customer** | Final customers | Query only (no creation) |
-| **♻️ recycling_facility** | Recycling centers | END_OF_LIFE only |
-| **🏛️ auditor** | External auditors | Query only (all data) |
+| Role | LoA | Qualified Sig | Allowed Schemas |
+|------|-----|---------------|-----------------|
+| **🏭 manufacturer** | High (2) | ✅ Required | All (5 schemas) |
+| **📦 exporter** | Substantial (1) | ✅ Required | TRANSPORT_EVENT |
+| **🔧 technician** | Substantial (1) | ❌ Regular OK | MAINTENANCE_EVENT |
+| **🏢 joint_manufacturer** | High (2) | ✅ Required | OWNERSHIP + TRANSPORT |
+| **🏪 retailer** | Substantial (1) | ✅ Required | OWNERSHIP_TRANSFER |
+| **🚛 logistics** | Substantial (1) | ❌ Regular OK | TRANSPORT_EVENT |
+| **♻️ recycler** | High (2) | ✅ Required | END_OF_LIFE |
+| **👥 end_customer** | None (0) | ❌ Read-only | Query only |
 
-### **Note**: Each stakeholder can only create the type of event they are authorized for
+### **Note**: LoA and signature requirements enforced by smart contracts
 
 </div>
 
 <div>
 
-## System Advantages
+## eIDAS Advantages
 
-### **🎯 Granular Permissions**
-- Each stakeholder can only register events within their responsibility
-- Technicians cannot change ownership
-- Carriers cannot perform maintenance
+### **⚖️ Legal Validity**
+- Qualified signatures have **legal value** in EU
+- Automatic **cross-border recognition** in 27+ countries
+- **Regulatory compliance** built-in
 
-### **📈 Scalability**
-- New stakeholders only need to be assigned to existing roles
-- Role changes affect all stakeholders automatically
+### **🔐 Enhanced Security**
+- **Multi-level authentication** (LoA 1 & 2)
+- **QTSP certificate validation** in real-time
+- **Long-term validation** (LTV) for evidence preservation
 
-### **🔒 Security**
-- Automatic validation before creating any record
-- Audit trail of who did what
+### **📈 Trust & Scalability**
+- **Certificate-based trust** rather than manual verification
+- **Automatic LoA enforcement** by smart contracts
+- **Reduced legal risks** in international operations
 
 </div>
 

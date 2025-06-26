@@ -193,11 +193,13 @@ When you buy industrial equipment today:
 
 <div>
 
-## Blockchain Architecture
+## Blockchain Architecture + eIDAS
 
 ### **🏛️ Neutral Infrastructure**
 - **Arbitrum Network**: Reliable public network
 - **EAS Protocol**: Global standard for attestations
+- **eIDAS Compliance**: European legal recognition
+- **Qualified Signatures**: Legal validity in EU
 - **Multi-manufacturer**: WEG + others can use
 
 ### **🔒 Security and Control**

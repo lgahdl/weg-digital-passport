@@ -4,8 +4,8 @@ pragma solidity ^0.8.19;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "./PassportRegistry.sol";
-import "./eIDAS/DigitalPassport_eIDAS.sol";
-import "./eIDAS/eIDASQualifiedAttestor.sol";
+import "./DigitalPassport_eIDAS.sol";
+import "./eIDASQualifiedAttestor.sol";
 
 /**
  * @title DigitalPassportFactory

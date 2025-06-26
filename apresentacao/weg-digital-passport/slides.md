@@ -1,12 +1,12 @@
 ---
 theme: academic
-title: 'Industrial Digital Passport Protocol'
-titleTemplate: '%s - Blockchain for Industrial Traceability'
+title: 'Industrial Digital Passport Protocol + eIDAS'
+titleTemplate: '%s - EU-Legal Blockchain Traceability'
 info: |
-  ## Industrial Digital Passport Protocol
+  ## Industrial Digital Passport Protocol with eIDAS Compliance
   
-  Technical presentation about the blockchain solution for complete traceability
-  of industrial products using Ethereum Attestation Service (EAS) on Arbitrum.
+  Technical presentation about the eIDAS-compatible blockchain solution for complete traceability
+  of industrial products using Ethereum Attestation Service (EAS) on Arbitrum with EU legal recognition.
   
   [Learn more](https://github.com/ethereum-attestation-service/eas-docs)
 
@@ -17,9 +17,9 @@ transition: slide-left
 mdc: true
 ---
 
-# Industrial Digital Passport Protocol
+# Industrial Digital Passport Protocol + eIDAS
 
-Blockchain for Complete Industrial Traceability
+EU-Legal Blockchain for Complete Industrial Traceability
 
 <div class="pt-12">
   <span @click="$slidev.nav.next" class="px-2 py-1 rounded cursor-pointer" hover="bg-white bg-opacity-10">
@@ -50,11 +50,19 @@ src: ./slides/03-eas-explicacao.md
 ---
 
 ---
+src: ./slides/03-5-eidas-compliance.md
+---
+
+---
 src: ./slides/04-digital-passport.md
 ---
 
 ---
 src: ./slides/05-exemplo-uso.md
+---
+
+---
+src: ./slides/05-5-eidas-summary.md
 ---
 
 ---

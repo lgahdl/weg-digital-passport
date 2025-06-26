@@ -47,34 +47,34 @@
 
 - Blockchain solution scalability
 - Integration with existing ERP systems  
-- Operational and transaction costs
-- Security and access control
+- eIDAS qualified signature costs and QTSPs
+- Multi-level security (LoA 1 & 2)
 - Performance in high-volume scenarios
 
-## 🏭 **Industrial Implementation**
+## 🏭 **Industrial Implementation + eIDAS**
 
-- Specific use cases for different industries
-- ROI and business models
-- Regulatory compliance
-- Stakeholder onboarding process
+- EU market entry and legal compliance
+- ROI with reduced legal risks
+- Cross-border recognition benefits
+- QTSP selection and integration process
 
 </div>
 
 <div>
 
-## 🌐 **Architecture and Ecosystem**
+## 🌐 **eIDAS Architecture & Ecosystem**
 
-- Interoperability between manufacturers
-- Expansion to other countries/regulations  
-- Integration with IoT and sensors
-- Data analysis and insights
+- Cross-border interoperability (EU + EEA)
+- QTSP integration across 27+ countries
+- Long-term validation (LTV) strategies
+- Integration with national digital identity systems
 
-## ♻️ **Sustainability and ESG**
+## ♻️ **Legal Compliance & ESG**
 
-- Environmental impact of the solution
-- Traceability of sustainable materials
-- Compliance with green regulations
-- Circular economy metrics
+- EU regulatory framework alignment
+- Digital Product Passport (DPP) compliance from 2027
+- Qualified signatures for environmental data
+- Legal traceability for circular economy
 
 </div>
 

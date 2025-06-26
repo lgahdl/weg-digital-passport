@@ -2,8 +2,9 @@
 pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 
 /**
  * @title eIDASQualifiedAttestor
@@ -164,7 +165,7 @@ contract eIDASQualifiedAttestor is Ownable, ReentrancyGuard {
     error InvalidLevelOfAssurance(uint8 level);
     error CountryNotRecognized(string country);
     error CertificateExpired(bytes32 certHash);
-    error CertificateRevoked(bytes32 certHash);
+    error CertificateIsRevoked(bytes32 certHash);
     error AttestationNotFound(bytes32 uid);
     error InvalidSignature();
     error QTSPAlreadyRegistered(address qtsp);
@@ -194,14 +195,14 @@ contract eIDASQualifiedAttestor is Ownable, ReentrancyGuard {
     
     modifier certificateNotRevoked(bytes32 certHash) {
         if (validatedCertificates[certHash].isRevoked) {
-            revert CertificateRevoked(certHash);
+            revert CertificateIsRevoked(certHash);
         }
         _;
     }
     
     // ============ CONSTRUCTOR ============
     
-    constructor() {
+    constructor() Ownable(msg.sender) {
         // Inicializar países eIDAS reconhecidos
         _initializeRecognizedCountries();
         currentTrustListVersion = "2024.1";
@@ -389,7 +390,7 @@ contract eIDASQualifiedAttestor is Ownable, ReentrancyGuard {
         
         // Verificar assinatura qualificada
         bytes32 messageHash = keccak256(abi.encodePacked(originalUID, schemaType, originalData));
-        address recoveredSigner = messageHash.toEthSignedMessageHash().recover(qualifiedSignature);
+        address recoveredSigner = ECDSA.recover(MessageHashUtils.toEthSignedMessageHash(messageHash), qualifiedSignature);
         if (recoveredSigner != msg.sender) {
             revert InvalidSignature();
         }

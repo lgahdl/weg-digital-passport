@@ -36,11 +36,13 @@
 
 ## Real Product
 
-**WEG W22 100HP Motor**
+**WEG W22 100HP Motor + eIDAS**
 - **Product ID**: `WEG-W22-2025-001`
 - **Model**: Three-Phase Electric Motor
 - **Application**: Integration in Thyssenkrupp elevator
 - **Lifecycle**: 2025-2040 (15 years)
+- **eIDAS Status**: EU legally recognized digital passport
+- **Qualified Signatures**: 6 out of 9 total attestations
 
 ### **Supply Chain Stakeholders**
 - 🏭 **WEG S.A.** (Manufacturer)
@@ -125,16 +127,19 @@
 
 **🏭 Jan 2025 - WEG Jaraguá do Sul**  
 - Product Init: Product creation  
+- **eIDAS**: High LoA + CAdES qualified signature  
 - Composition: 95% recyclable materials  
 - Quality tests: Approved  
 
 **📦 Feb 2025 - WEG Export Brasil**  
 - Transport Event: Factory departure  
+- **eIDAS**: Substantial LoA + XAdES qualified signature  
 - Destination: Port of Itajaí  
 - Conditions: Temperature controlled  
 
 **🚛 Mar 2025 - Maersk Line**  
 - Transport Event: International shipment  
+- **eIDAS**: Substantial LoA + regular signature  
 - Ship: Maersk Sealand  
 - Destination: Hamburg, Germany  
 
@@ -146,20 +151,24 @@
 
 **🏢 Apr 2025 - Thyssenkrupp Germany**  
 - Ownership Transfer: Motor received  
+- **eIDAS**: High LoA + PAdES qualified signature  
 - Integration in ThyssenOne elevator  
 - Complete system tests  
 
 **📦 May 2025 - Thyssenkrupp**  
 - Final Product: Complete elevator  
+- **eIDAS**: High LoA + XAdES qualified signature  
 - Transport Event: Shipment back to Brazil  
 - Ship: Maersk to Santos, SP  
 
 **🏪 Jun 2025 - Construções Brasil**  
 - Ownership Transfer: Elevator received  
+- **eIDAS**: Substantial LoA + qualified signature  
 - Transport Event: To installation in SP  
 
 **👥 Jul 2025 - Condominium**  
 - Ownership Transfer: End customer  
+- **eIDAS**: Substantial LoA + qualified signature  
 - Start of commercial operation  
 
 </div>
@@ -185,6 +194,7 @@
 
 **Year 15**: End of Life  
 - ♻️ Recycling: 95% materials recovered  
+- **eIDAS**: High LoA + CAdES qualified signature for compliance  
 
 </div>
 

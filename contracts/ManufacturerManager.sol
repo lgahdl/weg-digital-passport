@@ -4,8 +4,8 @@ pragma solidity ^0.8.19;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "./DigitalPassportFactory.sol";
-import "./eIDAS/DigitalPassport_eIDAS.sol";
-import "./eIDAS/eIDASQualifiedAttestor.sol";
+import "./DigitalPassport_eIDAS.sol";
+import "./eIDASQualifiedAttestor.sol";
 
 /**
  * @title ManufacturerManager
@@ -221,26 +221,8 @@ abstract contract ManufacturerManager is Ownable, ReentrancyGuard {
         manufacturerName = _manufacturerName;
         manufacturerCountry = _manufacturerCountry;
         
-        // Initialize manufacturer as authorized stakeholder
-        _addStakeholderInternal(
-            _manufacturer, 
-            "manufacturer", 
-            _manufacturerName,
-            "Primary manufacturer account",
-            2, // Alto nível de garantia para fabricante
-            bytes32(0),
-            "",
-            false
-        );
-        
-        // Create default manufacturer role
-        _createRole(
-            "manufacturer",
-            "Primary manufacturer with all permissions",
-            new string[](0), // Will be populated by derived contracts
-            2, // Alto nível de garantia
-            true // Requer assinatura qualificada
-        );
+        // Note: Roles and stakeholders will be initialized by derived contracts
+        // This allows for manufacturer-specific role definitions
     }
     
     // ============ ROLE MANAGEMENT ============
@@ -409,7 +391,25 @@ abstract contract ManufacturerManager is Ownable, ReentrancyGuard {
         bytes memory data,
         bool useQualifiedSignature,
         string memory signatureFormat
-    ) external onlyAuthorizedStakeholder nonReentrant validSchema(schemaName) {
+    ) public onlyAuthorizedStakeholder nonReentrant validSchema(schemaName) {
+        _attestToProduct(passportAddress, schemaName, data, useQualifiedSignature, signatureFormat);
+    }
+
+    /**
+     * @dev Internal function to create an attestation to a product passport
+     * @param passportAddress Address of the passport contract
+     * @param schemaName Name of the schema to use
+     * @param data Attestation data
+     * @param useQualifiedSignature Whether to use qualified signature
+     * @param signatureFormat Format for qualified signature (if applicable)
+     */
+    function _attestToProduct(
+        address passportAddress,
+        string memory schemaName,
+        bytes memory data,
+        bool useQualifiedSignature,
+        string memory signatureFormat
+    ) internal validSchema(schemaName) {
         // Verify passport is valid
         if (passportAddress == address(0)) {
             revert InvalidPassportAddress(passportAddress);
@@ -627,6 +627,37 @@ abstract contract ManufacturerManager is Ownable, ReentrancyGuard {
         );
     }
     
+    /**
+     * @dev Internal function to register a schema
+     */
+    function _registerSchema(
+        string memory schemaName,
+        bytes32 schemaId,
+        string memory schemaDefinition,
+        uint8 minimumLoA,
+        bool requiresQualifiedAttestation
+    ) internal {
+        registeredSchemas[schemaName] = SchemaInfo({
+            schemaId: schemaId,
+            schemaName: schemaName,
+            schemaDefinition: schemaDefinition,
+            isActive: true,
+            registeredAt: block.timestamp,
+            minimumLoA: minimumLoA,
+            requiresQualifiedAttestation: requiresQualifiedAttestation
+        });
+        
+        schemaNames.push(schemaName);
+        
+        emit SchemaRegistered(
+            schemaName,
+            schemaId,
+            minimumLoA,
+            requiresQualifiedAttestation,
+            block.timestamp
+        );
+    }
+
     /**
      * @dev Internal function to add a stakeholder
      */
