@@ -70,6 +70,32 @@ A União Europeia estabeleceu novos requisitos regulatórios que demandam rastre
 - Redução de impactos ambientais
 - Fortalecimento da economia circular
 
+## 🖥️ Terminal Interativo
+
+Para facilitar o desenvolvimento e teste do sistema, foi criado um **terminal interativo** que permite interagir com os contratos inteligentes implantados localmente.
+
+### Início Rápido
+
+```bash
+# 1. Iniciar blockchain local
+npm run node
+
+# 2. Implantar contratos (em outro terminal)
+npm run deploy:save
+
+# 3. Executar terminal interativo
+npm run interactive
+```
+
+### Funcionalidades Disponíveis
+
+- **Gestão de Contas**: Alternar entre diferentes contas de teste
+- **Gestão de Produtos**: Criar e visualizar produtos WEG
+- **Gestão de Stakeholders**: Adicionar e gerenciar partes interessadas
+- **Informações do Sistema**: Visualizar endereços de contratos e estatísticas
+
+Para mais detalhes, consulte o [Guia do Terminal Interativo](./INTERACTIVE_TERMINAL_GUIDE.md).
+
 ## Próximos Passos
 
 1. **Definição da Arquitetura Técnica**: Blockchain, smart contracts, APIs

@@ -289,7 +289,8 @@ contract DigitalPassport_eIDAS is ReentrancyGuard {
             schemaType,
             abi.encodePacked(productId, schemaType, block.timestamp),
             qualifiedSignature,
-            signatureFormat
+            signatureFormat,
+            attester
         );
         
         // Adicionar como attestation no passaporte

@@ -391,7 +391,7 @@ abstract contract ManufacturerManager is Ownable, ReentrancyGuard {
         bytes memory data,
         bool useQualifiedSignature,
         string memory signatureFormat
-    ) public onlyAuthorizedStakeholder nonReentrant validSchema(schemaName) {
+    ) public onlyAuthorizedStakeholder validSchema(schemaName) {
         _attestToProduct(passportAddress, schemaName, data, useQualifiedSignature, signatureFormat);
     }
 
